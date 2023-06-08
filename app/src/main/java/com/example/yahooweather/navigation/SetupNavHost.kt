@@ -9,8 +9,8 @@ import com.example.yahooweather.presentation.screens.mainWeatherScreen.MainWeath
 import com.example.yahooweather.utils.Constants
 
 @Composable
-fun SetupNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screens.Welcome.route) {
+fun SetupNavHost(navController: NavHostController, startDestination: String) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(route = Screens.Welcome.route) {
             WelcomeScreen(navController)
         }

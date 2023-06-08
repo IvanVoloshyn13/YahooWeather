@@ -40,8 +40,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.yahooweather.R
+import com.example.yahooweather.presentation.screens.welcome.WelcomeScreenViewModel
 import com.example.yahooweather.ui.theme.Typography
 import com.example.yahooweather.utils.Constants
 import com.example.yahooweather.utils.OnBoardingPage
@@ -54,6 +56,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalFoundationApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun WelcomeScreen(navController: NavController) {
+    val viewModel: WelcomeScreenViewModel = hiltViewModel()
     val pagerState = rememberPagerState()
     val pagerScreens = arrayOf(
         OnBoardingPage.FirstPage(),
@@ -92,6 +95,7 @@ fun WelcomeScreen(navController: NavController) {
             FinishButton(
                 pagerState = pagerState,
                 onClick = {
+                    viewModel.saveOnBoardState(true)
                     if (permissionState.status.shouldShowRationale) {
                         launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                         if (goToWeatherScreen == 1) {

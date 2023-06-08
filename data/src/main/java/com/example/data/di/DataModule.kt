@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.example.data.repository.DataStoreRepositoryImpl
+import com.example.data.utils.Constants
 import com.example.domain.repository.DataStoreRepository
 import dagger.Module
 import dagger.Provides
@@ -26,7 +27,7 @@ class DataModule {
     @Provides
     @Singleton
     fun provideSharedPreferenceStore(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE)
+        return context.getSharedPreferences(Constants.DataKey.DATA_PREF_KEY, Context.MODE_PRIVATE)
     }
 
     @Provides
@@ -37,7 +38,7 @@ class DataModule {
                 produceNewData = { emptyPreferences() }
             ),
             scope = CoroutineScope(Dispatchers.IO),
-            produceFile = { context.preferencesDataStoreFile(SHARED_PREF_KEY) }
+            produceFile = { context.preferencesDataStoreFile(Constants.DataKey.DATA_PREF_KEY) }
         )
 
     }
@@ -49,7 +50,5 @@ class DataModule {
     }
 
 
-    companion object {
-        const val SHARED_PREF_KEY = "SharedKey"
-    }
+
 }
