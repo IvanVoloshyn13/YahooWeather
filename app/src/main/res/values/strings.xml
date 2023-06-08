@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">YahooWeather</string>
+    <string name="use_location_service">Use Location Service ?</string>
+    <string name="current_location">Current Location</string>
+    <string name="gps_is_disabled">Location services are disabled</string>
+    <string name="delete_current_location">Delete current location</string>
+    <string name="edit_location">Edit location</string>
+    <string name="login_register_text_btt">Login / register</string>
+
 </resources>

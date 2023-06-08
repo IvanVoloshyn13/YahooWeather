@@ -14,3 +14,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "YahooWeather"
 include ':app'
+include ':domain'
+include ':data'
+include ':retrofit'
+include ':room'

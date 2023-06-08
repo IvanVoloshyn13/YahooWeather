@@ -1,13 +1,10 @@
-package com.example.yahooweather.presentation.screens.startScreen.components
+package com.example.yahooweather.presentation.screens.mainWeatherScreen.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -23,8 +20,6 @@ import com.example.yahooweather.ui.theme.Typography
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit) {
-
-
     CenterAlignedTopAppBar(
         modifier = modifier
             .fillMaxWidth()
@@ -56,3 +51,4 @@ fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit) {
 fun TopAppBarPrev() {
     TopAppBar(modifier = Modifier, onNavigationIconClick = TODO())
 }
+
