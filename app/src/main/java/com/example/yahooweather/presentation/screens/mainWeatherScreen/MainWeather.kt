@@ -69,11 +69,10 @@ fun MainWeatherScreen() {
     val weatherState = viewModel.weatherState.collectAsState()
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val imagePainter = rememberAsyncImagePainter(model = weatherState.value.currentCityImage.data)
-    viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
 
-    if (weatherState.value.currentLocationState.cityName != null) {
-        viewModel.sendEvent(MainWeatherEvent.CurrentCityImage(cityName = weatherState.value.currentLocationState.cityName))
-    }
+
+
+
 
     Box(
         modifier = Modifier
@@ -125,6 +124,7 @@ fun MainWeatherScreen() {
                 )
 
             } else {
+
 
             }
 

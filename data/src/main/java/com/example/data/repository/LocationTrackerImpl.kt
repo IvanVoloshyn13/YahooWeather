@@ -65,17 +65,17 @@ class LocationTrackerImpl @Inject constructor(
                     }
                     return@suspendCancellableCoroutine
                 }
-                addOnSuccessListener { it->
+                addOnSuccessListener { it ->
                     val city =
                         geocoder.getFromLocation(it.latitude, it.longitude, 1)?.get(0)?.locality
-                    continuation.resume(Resource.Success(data = it.toDomainLocation(cityName = city.toString()))){
+                    continuation.resume(Resource.Success(data = it.toDomainLocation(cityName = city.toString()))) {
 
                     }
                 }
 
                 addOnFailureListener { it ->
                     continuation.resume(Resource.Error(data = null, message = it.message)) {
-
+                        continuation.cancel()
                     }
                 }
 

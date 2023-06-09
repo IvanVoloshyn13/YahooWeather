@@ -19,6 +19,9 @@ class MainWeatherViewModel @Inject constructor(
     private val getUserLocationUseCase: GetUserLocationUseCase,
     private val getCityImageByNameUseCase: GetCityImageByNameUseCase
 ) : ViewModel() {
+    init {
+        getCurrentLocation()
+    }
 
     private val _weatherState =
         MutableStateFlow(
@@ -31,10 +34,11 @@ class MainWeatherViewModel @Inject constructor(
 
     fun sendEvent(event: MainWeatherEvent) {
         when (event) {
-         is MainWeatherEvent.CurrentLocationEvent -> {
+            is MainWeatherEvent.CurrentLocationEvent -> {
                 getCurrentLocation()
             }
-           is MainWeatherEvent.CurrentCityImage -> {
+
+            is MainWeatherEvent.CurrentCityImage -> {
                 getCityImage(event.cityName)
             }
         }
@@ -56,7 +60,9 @@ class MainWeatherViewModel @Inject constructor(
                                     )
                                 )
                             }
+                            getCityImage(location.cityName)
                         }
+
                     }
                 }
 
