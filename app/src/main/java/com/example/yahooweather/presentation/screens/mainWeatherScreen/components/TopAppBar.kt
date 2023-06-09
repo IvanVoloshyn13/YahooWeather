@@ -19,14 +19,17 @@ import com.example.yahooweather.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit) {
+fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit, cityName: String) {
     CenterAlignedTopAppBar(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.Transparent),
 
         title = {
-            Text(text = "CityName", style = Typography.bodyLarge)
+            Text(
+                text = if (cityName != null) cityName else "CityName",
+                style = Typography.bodyLarge
+            )
         },
         navigationIcon = {
             IconButton(onClick = { onNavigationIconClick() }) {
@@ -49,6 +52,6 @@ fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit) {
 @Preview
 @Composable
 fun TopAppBarPrev() {
-    TopAppBar(modifier = Modifier, onNavigationIconClick = TODO())
+    TopAppBar(modifier = Modifier, onNavigationIconClick = TODO(), "")
 }
 

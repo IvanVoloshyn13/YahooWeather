@@ -13,9 +13,7 @@ class MainActivityViewModel @Inject constructor(
     private val getOnBoardStateUseCase: GetOnBoardStateUseCase
 ) : ViewModel() {
 
-    init {
-        getOnBoardState()
-    }
+
 
 
     private val _onBoardState = MutableStateFlow(Constants.Screens.WELCOME_SCREEN)

@@ -3,6 +3,7 @@ package com.example.yahooweather
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.runtime.LaunchedEffect
@@ -23,25 +24,30 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalAnimationApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var viewModel: MainActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isLoading.value
         }
-
-        setContent {
-            val onBoardState = viewModel.onBoardState.collectAsState()
-            val screenRoute =onBoardState.value
-            val navController = rememberNavController()
-            YahooWeatherTheme {
-                // A surface container using the 'background' color from the theme
+        super.onCreate(savedInstanceState)
+        viewModel.getOnBoardState()
+        lifecycleScope.launch {
+            delay(200)
+            setContent {
+                val onBoardState = viewModel.onBoardState.collectAsState()
+                val screenRoute = onBoardState.value
+                val navController = rememberNavController()
+                YahooWeatherTheme {
+                    // A surface container using the 'background' color from the theme
                     SetupNavHost(navController, screenRoute)
 
 
+                }
             }
         }
     }

@@ -10,19 +10,24 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Divider
@@ -35,11 +40,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.yahooweather.R
 import com.example.yahooweather.presentation.screens.mainWeatherScreen.components.PermissionDialog
 import com.example.yahooweather.presentation.screens.mainWeatherScreen.components.TopAppBar
@@ -58,13 +68,12 @@ fun MainWeatherScreen() {
     val context = LocalContext.current
     val weatherState = viewModel.weatherState.collectAsState()
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission())
-        { wasGranted ->
-            if (wasGranted) {
-                Toast.makeText(context, "Permission was Granted", Toast.LENGTH_SHORT).show()
-            }
-        }
+    val imagePainter = rememberAsyncImagePainter(model = weatherState.value.currentCityImage.data)
+    viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
+
+    if (weatherState.value.currentLocationState.cityName != null) {
+        viewModel.sendEvent(MainWeatherEvent.CurrentCityImage(cityName = weatherState.value.currentLocationState.cityName))
+    }
 
     Box(
         modifier = Modifier
@@ -72,7 +81,14 @@ fun MainWeatherScreen() {
             .background(Color.Gray),
         contentAlignment = Alignment.Center
     )
+
+
     {
+        Image(
+            painter = imagePainter, contentDescription = "background image",
+            modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
+        )
+
         Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
@@ -82,11 +98,18 @@ fun MainWeatherScreen() {
                     coroutineScope.launch {
                         scaffoldState.drawerState.open()
                     }
-                })
+
+                }, cityName = weatherState.value.currentLocationState.cityName)
             },
 
             drawerContent = {
-                DrawerHeader(modifier = Modifier)
+                DrawerHeader(modifier = Modifier,
+                    onCurrentLocationClick = {
+                        viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
+                        coroutineScope.launch {
+                            scaffoldState.drawerState.close()
+                        }
+                    })
             },
             backgroundColor = Color.Transparent,
             drawerBackgroundColor = Color.Black,
@@ -112,10 +135,9 @@ fun MainWeatherScreen() {
 
 
 @Composable
-fun DrawerHeader(modifier: Modifier) {
+fun DrawerHeader(modifier: Modifier, onCurrentLocationClick: () -> Unit) {
     Column(
-        modifier = modifier.height(60.dp),
-        verticalArrangement = Arrangement.Center
+        modifier = modifier.height(80.dp)
     ) {
         Row(
             modifier = modifier
@@ -136,7 +158,30 @@ fun DrawerHeader(modifier: Modifier) {
             )
 
         }
-        Divider(modifier = modifier.padding(top = 6.dp))
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(all = 6.dp)
+                .clickable { onCurrentLocationClick() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Current Location",
+                tint = Yellow
+            )
+            Text(text = "Current location", style = Typography.bodySmall, color = LightBlue)
+        }
+
+
+        Divider(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp),
+            color = Color.DarkGray
+        )
+
+
     }
 
 }

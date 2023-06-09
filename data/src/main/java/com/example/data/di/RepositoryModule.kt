@@ -1,7 +1,9 @@
 package com.example.data.di
 
 import com.example.data.repository.LocationTrackerImpl
+import com.example.data.repository.UnsplashImageRepositoryImpl
 import com.example.domain.location.LocationTracker
+import com.example.domain.repository.weatherScreen.UnsplashCityImageRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -19,5 +21,11 @@ abstract class RepositoryModule {
     abstract fun bindLocationTracker(
         locationTrackerImpl: LocationTrackerImpl
     ): LocationTracker
+
+    @Binds
+    @Singleton
+    abstract fun unsplashImageRepository(
+        unsplashImageRepositoryImpl: UnsplashImageRepositoryImpl
+    ): UnsplashCityImageRepository
 
 }

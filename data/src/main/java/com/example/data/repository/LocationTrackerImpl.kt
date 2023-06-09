@@ -3,6 +3,7 @@ package com.example.data.repository
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -25,6 +26,7 @@ class LocationTrackerImpl @Inject constructor(
 
 
     override suspend fun getUserLocation(): Resource<CurrentLocation> {
+        val geocoder = Geocoder(context)
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val hasAccessFineLocationPermission = ContextCompat.checkSelfPermission(
@@ -47,40 +49,38 @@ class LocationTrackerImpl @Inject constructor(
             return Resource.Error(message = "GPS is disabled")
         }
 
-
+        @Suppress("DEPRECATION")
         return suspendCancellableCoroutine { continuation ->
             locationClient.lastLocation.apply {
                 if (isComplete) {
                     if (isSuccessful) {
-                        Log.d("LOG", "${result.altitude}")
-                        continuation.resume(Resource.Success(data = result.toDomainLocation())) {
-
+                        val city =
+                            geocoder.getFromLocation(result.latitude, result.longitude, 1)
+                        continuation.resume(Resource.Success(data = result.toDomainLocation(cityName = city.toString()))) {
                         }
                     } else {
                         continuation.resume(Resource.Error(message = "")) {
-
                         }
 
                     }
                     return@suspendCancellableCoroutine
                 }
+                addOnSuccessListener { it->
+                    val city =
+                        geocoder.getFromLocation(it.latitude, it.longitude, 1)?.get(0)?.locality
+                    continuation.resume(Resource.Success(data = it.toDomainLocation(cityName = city.toString()))){
 
-                addOnSuccessListener {
-                    continuation.resume(Resource.Success(data = it.toDomainLocation())) {
-                        Log.d("LOG", "success")
                     }
                 }
 
-                addOnFailureListener {
-                    continuation.resume(Resource.Error(data = null, message = "")) {
-                        Log.d("LOG", "failure")
+                addOnFailureListener { it ->
+                    continuation.resume(Resource.Error(data = null, message = it.message)) {
 
                     }
                 }
 
                 addOnCanceledListener {
                     continuation.cancel()
-                    Log.d("LOG", "cancel")
                 }
             }
         }
