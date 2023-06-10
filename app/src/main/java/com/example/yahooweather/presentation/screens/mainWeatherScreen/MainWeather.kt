@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.location.GpsStatus
+import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
@@ -112,9 +114,7 @@ fun MainWeatherScreen() {
             },
             backgroundColor = Color.Transparent,
             drawerBackgroundColor = Color.Black,
-
-
-            ) { paddingVal ->
+        ) { paddingVal ->
 
             if (!permissionState.status.isGranted) {
                 PermissionDialog(
@@ -123,10 +123,15 @@ fun MainWeatherScreen() {
                     modifier = Modifier
                 )
 
-            } else {
-
-
             }
+            if (!weatherState.value.gpsState) {
+                Toast.makeText(context, "GPS is disabled", Toast.LENGTH_SHORT).show()
+            } else {
+                LaunchedEffect(Unit) {
+                    viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
+                }
+            }
+
 
         }
     }

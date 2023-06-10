@@ -8,12 +8,6 @@ class Constants {
         const val WELCOME_SCREEN = "welcome"
     }
 
-    object Permissions{
-        const val PERMISSION_GRANTED = 1
-        const val PERMISSION_DENIED = 2
-        const val PERMISSION_SHOULD_SHOW_RATIONALE = 3
 
-
-    }
 
 }

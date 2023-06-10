@@ -6,10 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.Resource
 import com.example.domain.location.CurrentLocation
 import com.example.domain.useCase.mainWeatherScreen.GetCityImageByNameUseCase
+import com.example.domain.useCase.mainWeatherScreen.GetGpsStatusUseCase
 import com.example.domain.useCase.mainWeatherScreen.GetUserLocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,20 +21,25 @@ import javax.inject.Inject
 @HiltViewModel
 class MainWeatherViewModel @Inject constructor(
     private val getUserLocationUseCase: GetUserLocationUseCase,
-    private val getCityImageByNameUseCase: GetCityImageByNameUseCase
+    private val getCityImageByNameUseCase: GetCityImageByNameUseCase,
+    private val getGpsStatusUseCase: GetGpsStatusUseCase
 ) : ViewModel() {
-    init {
-        getCurrentLocation()
-    }
+
 
     private val _weatherState =
         MutableStateFlow(
             MainWeatherState(
                 currentLocationState = CurrentLocation(0.0, 0.0, ""),
-                currentCityImage = Resource.Loading()
+                currentCityImage = Resource.Loading(),
+                gpsState = false
             )
         )
     val weatherState = _weatherState.asStateFlow()
+
+    init {
+        getGpsStatus()
+        getCurrentLocation()
+    }
 
     fun sendEvent(event: MainWeatherEvent) {
         when (event) {
@@ -45,7 +54,7 @@ class MainWeatherViewModel @Inject constructor(
     }
 
     private fun getCurrentLocation() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val result = getUserLocationUseCase.getCurrentUserLocation()) {
                 is Resource.Success -> {
                     result.data.let { location ->
@@ -71,7 +80,12 @@ class MainWeatherViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    Log.e("Error", "Error")
+                    if (result.message.equals("false")) {
+//                        _weatherState.update { state ->
+//                            state.copy(gpsState = true)
+//                        }
+                    }
+
                 }
             }
         }
@@ -79,7 +93,7 @@ class MainWeatherViewModel @Inject constructor(
 
     private fun getCityImage(cityName: String) {
         if (cityName.isNotEmpty()) {
-            viewModelScope.launch {
+            viewModelScope.launch (Dispatchers.IO){
                 val resource = getCityImageByNameUseCase.getImageByName(cityName = cityName)
                 when (resource) {
                     is Resource.Success -> {
@@ -96,6 +110,17 @@ class MainWeatherViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun getGpsStatus() {
+        viewModelScope.launch {
+            val status = getGpsStatusUseCase.getGpsStatus().collectLatest { it ->
+                _weatherState.update { state ->
+                    state.copy(gpsState = it)
+                }
+            }
+        }
+
     }
 
 
