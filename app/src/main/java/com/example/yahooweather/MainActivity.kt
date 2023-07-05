@@ -1,26 +1,25 @@
 package com.example.yahooweather
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.example.data.utils.GpsStatusReceiver
 import com.example.yahooweather.navigation.SetupNavHost
+import com.example.yahooweather.presentation.screens.mainWeatherScreen.MainWeatherViewModel
 import com.example.yahooweather.ui.theme.YahooWeatherTheme
-import com.example.yahooweather.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,12 +28,20 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var viewModel: MainActivityViewModel
+
+    @Inject
+    lateinit var gpsStatusReceiver: GpsStatusReceiver
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
 
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isLoading.value
         }
         super.onCreate(savedInstanceState)
+
+
+
         viewModel.getOnBoardState()
         lifecycleScope.launch {
             delay(200)
@@ -51,6 +58,22 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION).also {
+            registerReceiver(gpsStatusReceiver, it)
+        }
+        val gpsStatus = intent.getBooleanExtra("gps", false)
+        Log.d("GPS", gpsStatus.toString())
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(gpsStatusReceiver)
+    }
+
 
 }
 

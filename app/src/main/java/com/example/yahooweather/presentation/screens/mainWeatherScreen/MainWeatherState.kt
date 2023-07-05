@@ -5,7 +5,7 @@ import com.example.domain.Resource
 import com.example.domain.location.CurrentLocation
 
 data class MainWeatherState(
-    val currentLocationState: CurrentLocation,
+    val currentLocationState: Resource<CurrentLocation>,
     val currentCityImage: Resource<String>,
-    val gpsState: Boolean
+    val gpsState: Boolean? = null
 )

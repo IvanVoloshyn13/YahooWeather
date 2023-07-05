@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.location.GnssStatus
 import android.location.LocationManager
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.example.data.mappers.toDomainLocation
@@ -14,13 +13,6 @@ import com.example.domain.location.LocationTracker
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 
@@ -28,14 +20,15 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class LocationTrackerImpl @Inject constructor(
     private val locationClient: FusedLocationProviderClient,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val locationManager: LocationManager
 ) : LocationTracker {
 
 
     override suspend fun getUserLocation(): Resource<CurrentLocation> {
         val geocoder = Geocoder(context)
 
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
         val hasAccessFineLocationPermission = checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -53,7 +46,7 @@ class LocationTrackerImpl @Inject constructor(
             )
 
         if (!hasAccessFineLocationPermission || !hasAccessCoarseLocationPermission || !isGpsEnabled) {
-            return Resource.Error(message = "false", data = null)
+            return Resource.Error(message = "error", data = null)
         }
 
         @Suppress("DEPRECATION")
@@ -96,15 +89,7 @@ class LocationTrackerImpl @Inject constructor(
 
     }
 
-    override suspend fun gpsStatus(): Flow<Boolean> = flow {
-        val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        while (currentCoroutineContext().isActive) {
-            emit(manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-            delay(3000)
-        }
 
-
-    }
 
 
 }

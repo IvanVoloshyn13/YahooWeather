@@ -22,6 +22,7 @@ abstract class RepositoryModule {
         locationTrackerImpl: LocationTrackerImpl
     ): LocationTracker
 
+
     @Binds
     @Singleton
     abstract fun unsplashImageRepository(

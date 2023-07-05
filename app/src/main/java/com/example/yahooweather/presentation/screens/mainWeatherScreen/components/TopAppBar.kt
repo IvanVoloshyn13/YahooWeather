@@ -19,7 +19,7 @@ import com.example.yahooweather.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit, cityName: String) {
+fun TopAppBar(modifier: Modifier, onNavigationIconClick: () -> Unit, cityName: String?) {
     CenterAlignedTopAppBar(
         modifier = modifier
             .fillMaxWidth()

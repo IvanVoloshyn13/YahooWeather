@@ -2,30 +2,22 @@ package com.example.yahooweather.presentation.screens.mainWeatherScreen
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.location.GpsStatus
-import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -37,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,10 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import com.example.domain.Resource
 import com.example.yahooweather.R
+import com.example.yahooweather.presentation.screens.mainWeatherScreen.components.ErrorDialog
 import com.example.yahooweather.presentation.screens.mainWeatherScreen.components.PermissionDialog
 import com.example.yahooweather.presentation.screens.mainWeatherScreen.components.TopAppBar
 import com.example.yahooweather.ui.theme.LightBlue
@@ -73,34 +64,47 @@ fun MainWeatherScreen() {
     val imagePainter = rememberAsyncImagePainter(model = weatherState.value.currentCityImage.data)
 
 
-
-
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Gray),
         contentAlignment = Alignment.Center
+
     )
 
-
     {
+        when {
+            weatherState.value.currentLocationState is Resource.Loading
+                    || weatherState.value.currentCityImage is Resource.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            weatherState.value.currentLocationState is Resource.Error -> {
+                ErrorDialog(modifier = Modifier, onCancelClick = {})
+            }
+        }
+
         Image(
             painter = imagePainter, contentDescription = "background image",
             modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
         )
+
+
+
 
         Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
             scaffoldState = scaffoldState,
             topBar = {
-                TopAppBar(modifier = Modifier, onNavigationIconClick = {
-                    coroutineScope.launch {
-                        scaffoldState.drawerState.open()
-                    }
+                TopAppBar(
+                    modifier = Modifier, onNavigationIconClick = {
+                        coroutineScope.launch {
+                            scaffoldState.drawerState.open()
+                        }
 
-                }, cityName = weatherState.value.currentLocationState.cityName)
+                    }, cityName = weatherState.value.currentLocationState.data?.cityName
+                )
             },
 
             drawerContent = {
@@ -114,6 +118,8 @@ fun MainWeatherScreen() {
             },
             backgroundColor = Color.Transparent,
             drawerBackgroundColor = Color.Black,
+
+
         ) { paddingVal ->
 
             if (!permissionState.status.isGranted) {
@@ -124,14 +130,17 @@ fun MainWeatherScreen() {
                 )
 
             }
-            if (!weatherState.value.gpsState) {
-                Toast.makeText(context, "GPS is disabled", Toast.LENGTH_SHORT).show()
-            } else {
-                LaunchedEffect(Unit) {
-                    viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
-                }
-            }
 
+            weatherState.value.gpsState.let { it ->
+                if (it != null)
+                    if (!it) {
+                        Toast.makeText(context, "GPS is disabled", Toast.LENGTH_SHORT).show()
+                    } else {
+                        LaunchedEffect(Unit) {
+                            viewModel.sendEvent(MainWeatherEvent.CurrentLocationEvent)
+                        }
+                    }
+            }
 
         }
     }

@@ -1,6 +1,7 @@
 package com.example.data.di
 
 import android.content.Context
+import android.location.LocationManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -20,4 +21,8 @@ class LocationModule {
         return LocationServices.getFusedLocationProviderClient(context)
     }
 
+    @Provides
+    @Singleton
+    fun provideLocationManager(@ApplicationContext context: Context) =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 }
