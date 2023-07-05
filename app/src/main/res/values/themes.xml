@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.YahooWeather" parent="android:Theme.Material.Light.NoActionBar" />
+
+
+    <style name="Theme.CustomSplashScreenTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimationDuration">600</item>
+        <item name="postSplashScreenTheme">@style/Theme.YahooWeather</item>
+    </style>
 </resources>
